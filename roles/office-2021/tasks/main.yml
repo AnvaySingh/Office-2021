@@ -1,0 +1,39 @@
+---
+  - name: install ODT from download center
+    ansible.windows.win_get_url:
+      url: https://download.microsoft.com/download/2/7/A/27AF1BE6-DD20-4CB4-B154-EBAB8A7D4A7E/officedeploymenttool_15128-20224.exe
+      dest: "C:\\Install\\Files\\office-2021"
+
+  - name: Extract ODT
+    ansible.windows.win_powershell:
+            script: |
+                    cd C:\Install\Files\office-2021
+                    7z e C:\Install\Files\office-2021\officedeploymenttool_15128-20224.exe
+
+  - name: Creating a config file
+    copy:
+      dest: "C:\\Install\\Files\\office-2021\\configuration.xml"
+      content: |
+        <Configuration>
+          <Add OfficeClientEdition="64" Channel="PerpetualVL2021">
+              <Product ID="ProPlus2021Volume"  PIDKEY="FXYTK-NJJ8C-GB6DW-3DYQT-6F7TH" >
+                 <Language ID="en-us" />
+              </Product>
+              <Product ID="ProofingTools">
+                <Language ID="de-de" />
+                <Language ID="es-es" />
+              </Product>
+              <Product ID="VisioPro2021Volume">
+                <Language ID="en-us" />
+              </Product>
+          </Add>
+          <Remove All="True" />
+          <RemoveMSI />
+          <Display Level="None" AcceptEULA="TRUE" />
+        </Configuration>
+        
+        
+  - name: install office
+    ansible.windows.win_command: setup /configure configuration.xml
+    args:
+      chdir: C:\Install\Files\office-2021\
